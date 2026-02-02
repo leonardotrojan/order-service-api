@@ -12,3 +12,45 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model Customer {
+  id Int @id @default(autoincrement())
+  name String
+  email String @unique
+  phone String?
+  orders Order[]
+}
+
+model Product {
+  id Int @id @default(autoincrement())
+  name String
+  price Float
+  orders OrderProduct[]
+}
+
+model Order {
+  id Int @id @default(autoincrement())
+  customer Customer @relation(fields: [customerId], references: [id])
+  customerId Int
+  status OrderStatus @default(PENDING)
+  totalPrice Float
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  products OrderProduct[]
+}
+
+model OrderProduct {
+  id Int @id @default(autoincrement())
+  order Order @relation(fields: [orderId], references: [id])
+  orderId Int
+  product Product @relation(fields: [productId], references: [id])
+  productId Int
+  quantity Int
+}
+
+enum OrderStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELED
+}
