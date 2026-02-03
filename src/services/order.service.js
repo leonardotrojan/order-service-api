@@ -180,11 +180,14 @@ class OrderService {
             throw new Error(`Order with status ${order.status} cannot be deleted`)
         }
 
-        await prisma.order.delete({
-            where: {
-                id: orderId
-            }
-        })
+        await prisma.$transaction([
+            prisma.orderProduct.deleteMany({
+                where: { orderId }
+            }),
+            prisma.order.delete({
+                where: { id: orderId }
+            })
+        ])
 
         return { message: "order deleted sucessfully" }
     }
